@@ -203,7 +203,7 @@ model_buider = None  # type: Model_ENB0
 model_options = {
     "n_classes": len(ds_meta["classes"]),
     "final_activation": final_activation,
-    "augmentation": args.augmentation,
+    "augmentation": args.aug,
 }
 
 if args.model == "enb0":
@@ -215,7 +215,7 @@ elif args.model == "enb7_ns":
 
 model_buider.create()
 
-print("* Augmentation level:", args.augmentation)
+print("* Augmentation level:", args.aug)
 print(f"* Input size: {model_buider.input_shape}")
 print(f"* Output size: {np.array(ds_meta['classes']).shape}")
 
@@ -227,17 +227,17 @@ train_meta_file = f"{checkpoint_path}.meta.json"
 print(
     json.dumps(
         {
-            "run": args.run,
             "loss": loss,
+            "run": args.run,
             "args": vars(args),
+            "augmentation": args.aug,
             "cmd": " ".join(sys.argv),
             "val_fold": args.val_fold,
-            "image_size": model_buider.input_shape,
             "classes": ds_meta["classes"],
             "val_samples": val_df.shape[0],
             "train_samples": train_df.shape[0],
             "final_activation": final_activation,
-            "augmentation": args.augmentation,
+            "image_size": model_buider.input_shape,
             "problem_type": ds_meta["args"]["labels_mode"],
         },
         indent=4,
