@@ -60,6 +60,10 @@ def read_csvs(wildcards):
     for wildcard in wildcards:
         for csv_file in glob(wildcard):
             df = pd.read_csv(csv_file)
+
+            if "original_file" not in df.columns:
+                df["original_file"] = ["_none_"] * df.shape[0]  # type: ignore
+
             print(f'* Found CSV file "{csv_file}" with {df.shape[0]} lines')
             dfs.append(df)
 
@@ -82,6 +86,7 @@ def add_Y(df, mode):
 
     Y = []
     classes = []
+    class_1hs = []
 
     if mode == "multilabel":
         classes = " ".join(set(df.labels)).split(" ")
@@ -96,8 +101,15 @@ def add_Y(df, mode):
         y = np.zeros((len(classes)), dtype=np.uint8)
         y[list(map(lambda x: class_ixs[x], label.split(" ")))] = 1
         Y.append(",".join(y.astype(str)))
+        class_1hs.append(y)
 
     df.insert(df.shape[1], "Y", Y)
+
+    # insert 1-hot class columns
+    class_1hs = np.array(class_1hs)
+    for i, cls in enumerate(classes):
+        df[f"_{cls}_"] = class_1hs[:, i]
+
     print(f"* Added {len(classes)} labels: {classes}")
 
     return df, classes
@@ -150,11 +162,11 @@ fix_random_seed()
 # read multiple csvs into single dataframe
 df = read_csvs(args.input_csvs)
 
-# add Y column
-df, classes = add_Y(df, args.labels_mode)
-
 # add folds
 df = add_folds(df, args.folds)
+
+# add Y column
+df, classes = add_Y(df, args.labels_mode)
 
 # create output directory
 os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
