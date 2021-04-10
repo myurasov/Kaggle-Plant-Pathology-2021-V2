@@ -1,0 +1,21 @@
+c = {}
+
+c["DATA_DIR"] = "/app/_data"
+
+# where to search for csvs
+c["SRC_CSVS"] = [
+    f"{c['DATA_DIR']}/competition_data/train.csv",
+    f"{c['DATA_DIR']}/work/external.*.csv",
+]
+
+# where to search for images
+c["SRC_IMAGE_DIRS"] = [
+    f"{c['DATA_DIR']}/competition_data/train_images",
+    f"{c['DATA_DIR']}/pp_2020/new_images",
+]
+
+# where to output preprocessed data
+c["WORK_DIR"] = "/app/_data/work"
+
+# default image size for experiments
+c["IMAGE_SIZE"] = (600, 600)
