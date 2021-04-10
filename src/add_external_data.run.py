@@ -1,15 +1,17 @@
 #!/usr/bin/python
 
 import argparse
+import os
+import re
 import shutil
+from glob import glob
 from pprint import pformat
 
 import pandas as pd
 from tqdm import tqdm
 
-from src.config import c as c
-
-from utils import create_dir
+from src.config import c
+from utils import create_dir, md5_file
 
 # region: read arguments
 parser = argparse.ArgumentParser(
@@ -22,14 +24,26 @@ parser.add_argument(
     action="store_true",
 )
 
+parser.add_argument(
+    "--aux",
+    action="store_true",
+)
+
 args = parser.parse_args()
 print(f"* Arguments:\n{pformat(vars(args))}")
 
 # endregion
 
+# create extra data dir
+extra_data_dir = f"{c['WORK_DIR']}/extra_data"
+images_out_dir = f"{extra_data_dir}/images"
+create_dir(images_out_dir, remove=True)
+print(f"* Extra data dir: {extra_data_dir}")
+
 # region: pp 2020 dataset
 
-if args.pp_2020:
+
+def _add_pp_2020():
 
     pp20_dir = f"{c['DATA_DIR']}/pp_2020"
     pp20_new_images_dir = f"{pp20_dir}/new_images"
@@ -65,5 +79,57 @@ if args.pp_2020:
     new_df["image"] = new_images_files
     new_df["labels"] = new_labels
     new_df.to_csv(f"{c['WORK_DIR']}/external.pp_2020.csv")
+
+
+if args.pp_2020:
+    _add_pp_2020()
+
+# endregion
+
+# region: google images
+
+
+# copy file with unique name into extrenal images dir
+def _copy_file_to_external_images(path):
+
+    md5 = md5_file(path)
+    ext = os.path.splitext(path)[1].lower()
+    ext = ".jpg" if ".jpeg" == ext else ext
+
+    new_file_name = f"{md5}{ext}"
+    new_file_path = f"{images_out_dir}/{new_file_name}"
+
+    if not os.path.isfile(new_file_path):
+        shutil.copyfile(path, new_file_path)
+        return new_file_name  # copied
+
+    return None  # not copied
+
+
+def _add_aux_data():
+    labels = []
+    new_file_names = []
+    aux_data_dir = f"{c['DATA_DIR']}/aux_data"
+    dirs = glob(f"{aux_data_dir}/*/*")
+
+    for dir in dirs:
+        label = re.findall(".*/([a-z_]+)(\\.\\d+)?", dir, re.I)[0][0]
+        print(f'* Found aux data in "{dir}" with label "{label}"')
+        print(f'* Copying files to "{images_out_dir}"...')
+
+        for file in tqdm(glob(f"{dir}/*")):
+            if new_file_name := _copy_file_to_external_images(file):
+                new_file_names.append(new_file_name)
+                labels.append(label)
+
+    # save csv
+    df = pd.DataFrame()
+    df["image"] = new_file_names
+    df["labels"] = labels
+    df.to_csv(f"{extra_data_dir}/aux.csv", index=False)
+
+
+if args.aux:
+    _add_aux_data()
 
 # endregion

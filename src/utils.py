@@ -1,3 +1,4 @@
+import hashlib
 import os
 import random
 import shutil
@@ -43,3 +44,17 @@ def create_tensorboard_run_dir(run):
     tb_log_dir = f"/app/.tensorboard/{run}"
     shutil.rmtree(tb_log_dir, ignore_errors=True)
     return tb_log_dir
+
+
+def md5_file(path):
+    """
+    Calculate file MD5 hash
+    """
+
+    with open(path, "rb") as f:
+        hash = hashlib.md5()
+
+        while chunk := f.read(2 << 20):
+            hash.update(chunk)
+
+    return hash.hexdigest()

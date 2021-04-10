@@ -1,6 +1,6 @@
 # Code for Kaggle Plant Pathology 2021 - FGVC8
 
-https://www.kaggle.com/c/plant-pathology-2021-fgvc8
+<https://www.kaggle.com/c/plant-pathology-2021-fgvc8>
 
 ## Starting Jupyter Lab and TensorBoard
 
@@ -8,4 +8,4 @@ https://www.kaggle.com/c/plant-pathology-2021-fgvc8
 
 ## Links
 
-- EfficientNet: https://arxiv.org/pdf/1905.11946.pdf
+- EfficientNet: <https://arxiv.org/pdf/1905.11946.pdf>
