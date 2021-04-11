@@ -131,11 +131,20 @@ def _add_aux_data(aux_dir):
                 labels.append(label)
 
     # save csv
+
+    csv_file = f"{extra_data_dir}/aux.csv"
+
+    df_existing = pd.DataFrame()
+    if os.path.isfile(csv_file):
+        df_existing = pd.read_csv(csv_file)
+
     df = pd.DataFrame()
     df["image"] = new_files
     df["labels"] = labels
     df["original_file"] = orig_paths
-    df.to_csv(f"{extra_data_dir}/aux.csv", index=False)
+
+    df = pd.concat([df_existing, df])
+    df.to_csv(csv_file, index=False)
 
 
 if len(args.aux_dirs) > 0:
