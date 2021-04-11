@@ -17,5 +17,9 @@ c["SRC_IMAGE_DIRS"] = [
 # where to output preprocessed data
 c["WORK_DIR"] = "/app/_data/work"
 
+# extra data dir
+# should have sub-structure: <set_name>/<label.comment>
+c["AUX_DATA_DIR"] = "/app/_data/aux_data"
+
 # default image size for experiments
 c["IMAGE_SIZE"] = (600, 600)

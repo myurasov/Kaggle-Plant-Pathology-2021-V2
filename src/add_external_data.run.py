@@ -25,8 +25,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--aux",
-    action="store_true",
+    "--aux_dirs",
+    default=[],
+    type=str,
+    nargs="+",
+    help=f"Aux data directories (inside {c['AUX_DATA_DIR']})",
 )
 
 args = parser.parse_args()
@@ -109,20 +112,19 @@ if args.pp_2020:
 # region: google images
 
 
-def _add_aux_data():
+def _add_aux_data(aux_dir):
 
     labels = []
     new_files = []
     orig_paths = []
 
-    aux_data_dir = f"{c['DATA_DIR']}/aux_data"
-    dirs = glob(f"{aux_data_dir}/*/*")
+    label_dirs = glob(f"{aux_dir}/*")
 
-    for dir in dirs:
-        label = re.findall(".*/([a-z_]+)(\\.\\d+)?", dir, re.I)[0][0]
-        print(f'* Found aux data in "{dir}" with label "{label}"')
+    for label_dir in label_dirs:
+        label = re.findall("([a-z_]+)(\\.[\\w_-]+)?$", label_dir, re.I)[0][0]
+        print(f'* Found aux data in "{label_dir}" with label "{label}"')
 
-        for file in tqdm(glob(f"{dir}/*")):
+        for file in tqdm(glob(f"{label_dir}/*")):
             if new_file_name := _copy_file_to_external_images(file):
                 orig_paths.append(file)
                 new_files.append(new_file_name)
@@ -136,7 +138,11 @@ def _add_aux_data():
     df.to_csv(f"{extra_data_dir}/aux.csv", index=False)
 
 
-if args.aux:
-    _add_aux_data()
+if len(args.aux_dirs) > 0:
+    for aux_dir_pattern in args.aux_dirs:
+        aux_dir_pattern = c["AUX_DATA_DIR"] + "/" + aux_dir_pattern
+        aux_dirs = glob(aux_dir_pattern)
+        for aux_dir in aux_dirs:
+            _add_aux_data(aux_dir)
 
 # endregion
