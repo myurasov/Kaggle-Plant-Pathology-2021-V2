@@ -99,7 +99,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--augmentation",
+    "--aug",
     type=int,
     default=0,
     help="Augmentation level",
