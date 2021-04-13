@@ -78,6 +78,10 @@ RUN pip install imagehash
 # efficientnet with noisy student weights
 RUN pip install git+https://github.com/qubvel/efficientnet@v1.1.1
 
+# needed for keras model visualization
+RUN pip install pydot
+RUN apt-get install -y graphviz
+
 # copy external resources
 COPY docker/res /
 

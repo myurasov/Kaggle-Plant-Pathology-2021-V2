@@ -31,20 +31,31 @@ parser.add_argument(
     help="Target image size (WxH)",
 )
 
+parser.add_argument(
+    "--zoom",
+    type=float,
+    default=1,
+    help="Zoom factor",
+)
+
 args = parser.parse_args()
 print(f"* Arguments:\n{pformat(vars(args))}")
 # endregion
 
+df = pd.read_csv(f"{c['WORK_DIR']}/work.csv")
+
 g = Generator(
-    df=pd.read_csv(f"{c['WORK_DIR']}/work.csv"),
-    image_output_size=tuple(args.size),
+    df=df,
+    batch_size=1,
+    shuffle=False,
+    zoom=args.zoom,
     augmentation_options=None,
-    shuffle=False
+    image_output_size=tuple(args.size),
 )
 
 
 def _mapping(i):
-    x, y = g.get_one(i)
+    g.__getitem__(i)
 
 
 with Pool(cpu_count()) as pool:
@@ -52,8 +63,8 @@ with Pool(cpu_count()) as pool:
         tqdm(
             pool.imap(
                 _mapping,
-                range(g.n_samples),
+                range(df.shape[0]),
             ),
-            total=g.n_samples,
+            total=df.shape[0],
         )
     )

@@ -4,7 +4,9 @@ import random
 import shutil
 from collections import namedtuple
 
+import IPython
 import numpy as np
+from tensorflow import keras
 
 
 def create_dir(dir, remove=True):
@@ -58,3 +60,19 @@ def md5_file(path):
             hash.update(chunk)
 
     return hash.hexdigest()
+
+
+def show_keras_model(model: keras.Model, expand_nested=False):
+    """Display model structure in notebook"""
+    return IPython.display.SVG(
+        keras.utils.model_to_dot(
+            model=model,
+            show_shapes=True,
+            show_dtype=True,
+            show_layer_names=True,
+            expand_nested=expand_nested,
+        ).create(
+            prog="dot",
+            format="svg",
+        )
+    )
