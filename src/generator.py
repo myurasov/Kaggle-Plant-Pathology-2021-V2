@@ -229,6 +229,9 @@ class X2_Generator(keras.utils.Sequence):
         self._g1 = Generator(df=self._df, zoom=zooms[0], shuffle=False, **kwargs)
         self._g2 = Generator(df=self._df, zoom=zooms[1], shuffle=False, **kwargs)
 
+        if self._shuffle:
+            self._shuffle_samples()
+
     def __len__(self):
         return self._g1.__len__()
 
@@ -239,7 +242,7 @@ class X2_Generator(keras.utils.Sequence):
 
     def on_epoch_end(self):
         if self._shuffle:
-            self._shuffle
+            self._shuffle_samples()
 
         self._g1.on_epoch_end()
         self._g2.on_epoch_end()
