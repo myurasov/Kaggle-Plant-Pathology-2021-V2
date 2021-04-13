@@ -116,3 +116,44 @@ class Model_ENB7_NS(Model):
         )
 
         return self.base_model.output
+
+
+class Model_ENB7_X2(Model):
+    """
+    EfficientNetB7 with 2 inputs
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.input_shape = (600, 600, 3)
+
+    def create(self):
+
+        base = keras.applications.EfficientNetB7(
+            include_top=False,
+            weights="imagenet",
+            classes=self.n_classes,
+        )
+
+        input_1 = keras.layers.Input(shape=self.input_shape)
+        x1 = self.augmentation_stage(input_1)
+        x1 = base(x1)
+        x1 = keras.layers.GlobalAveragePooling2D()(x1)
+        x1 = keras.layers.BatchNormalization()(x1)
+
+        input_2 = keras.layers.Input(shape=self.input_shape)
+        x2 = self.augmentation_stage(input_2)
+        x2 = base(x2)
+        x2 = keras.layers.GlobalAveragePooling2D()(x2)
+        x2 = keras.layers.BatchNormalization()(x2)
+
+        x = keras.layers.Concatenate()([x1, x2])
+        x = keras.layers.Dropout(0.2)(x)
+        output_1 = keras.layers.Dense(
+            self.n_classes,
+            activation=self.final_activation,
+        )(x)
+
+        self.model = keras.Model(inputs=[input_1, input_2], outputs=[output_1])
+
+        return self.model
