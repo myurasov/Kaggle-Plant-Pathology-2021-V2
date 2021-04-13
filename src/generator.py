@@ -2,7 +2,6 @@ import os
 from hashlib import md5
 
 import numpy as np
-import pandas as pd
 from PIL import Image
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import (
