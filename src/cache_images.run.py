@@ -26,7 +26,7 @@ parser.add_argument(
 parser.add_argument(
     "--size",
     type=int,
-    default=c["IMAGE_SIZE"],
+    default=[600, 600],
     nargs="+",
     help="Target image size (WxH)",
 )
@@ -42,7 +42,7 @@ args = parser.parse_args()
 print(f"* Arguments:\n{pformat(vars(args))}")
 # endregion
 
-df = pd.read_csv(f"{c['WORK_DIR']}/work.csv")
+df = pd.read_csv(args.input_csv)
 
 g = Generator(
     df=df,

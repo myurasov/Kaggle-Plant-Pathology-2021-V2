@@ -2,6 +2,7 @@ import os
 from hashlib import md5
 
 import numpy as np
+import pandas as pd
 from PIL import Image
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import (
@@ -30,11 +31,12 @@ class Generator(keras.utils.Sequence):
         zoom=1,
         shuffle=True,
         batch_size=32,
+        image_output_size=(600, 600),
         image_dirs=c["SRC_IMAGE_DIRS"],
-        image_output_size=c["IMAGE_SIZE"],
         cache_dir=c["WORK_DIR"] + "/images_cache",
         augmentation_options=default_image_augmenation_options,
     ):
+
         self._df = df
         self._zoom = zoom
         self._shuffle = shuffle
@@ -91,6 +93,10 @@ class Generator(keras.utils.Sequence):
 
         return (b_X, b_Y)
 
+    def on_epoch_end(self):
+        if self._shuffle:
+            self._shuffle_samples()
+
     def _find_image(self, file_name):
 
         # find image file in image_dirs
@@ -108,7 +114,7 @@ class Generator(keras.utils.Sequence):
 
         raise Exception(f'Can\'t find "{file_name}"')
 
-    def _read_resized_image(self, src_file, zoom=1):
+    def _read_image(self, src_file, zoom=1):
         """Read resized image - either from cache or source file"""
 
         # unique id for a cache file
@@ -168,16 +174,16 @@ class Generator(keras.utils.Sequence):
 
         # x
 
-        image = self._df.image[ix]
+        image = self._df.image.iloc[ix]
         src_file = self._find_image(image)
-        x = self._read_resized_image(src_file, zoom=self._zoom)
+        x = self._read_image(src_file, zoom=self._zoom)
 
         if self._augmentation_options is not None:
             x = self._augment_image(x)
 
         # y
 
-        y = self._df.Y[ix].split(",")
+        y = self._df.Y.iloc[ix].split(",")
         y = np.array(y).astype(np.float16)
 
         return x, y
@@ -195,7 +201,7 @@ class Generator(keras.utils.Sequence):
             "col_axis": 1,
             "channel_axis": 2,
             # can be 'constant', 'nearest', 'reflect', 'wrap'
-            "fill_mode": "nearest",
+            "fill_mode": "reflect",
             "cval": 0.0,
         }
 
@@ -211,30 +217,35 @@ class Generator(keras.utils.Sequence):
 
         return x.astype(np.uint8)
 
-    def on_epoch_end(self):
-        if self._shuffle:
-            self._shuffle_samples()
-
     def _shuffle_samples(self):
         self._df = self._df.sample(frac=1).reset_index(drop=True)
 
 
-class Double_Generator(keras.utils.Sequence):
-    def __init__(self, zooms=[1.0, 2.0], **kwargs):
+class X2_Generator(keras.utils.Sequence):
+    def __init__(self, df, zooms=[1.0, 2.0], shuffle=True, **kwargs):
 
-        zooms = kwargs["zooms"]
-        del kwargs["zooms"]
-        self.g1 = Generator(zoom=zooms[0], **kwargs)
-        self.g1 = Generator(zoom=zooms[1], **kwargs)
+        self._df = df
+        self._shuffle = shuffle
+
+        self._g1 = Generator(df=self._df, zoom=zooms[0], shuffle=False, **kwargs)
+        self._g2 = Generator(df=self._df, zoom=zooms[1], shuffle=False, **kwargs)
 
     def __len__(self):
-        return self.g1.__len__()
+        return self._g1.__len__()
 
     def __getitem__(self, ix):
-        X1, Y = self.genX1.__getitem__(ix)
-        X2, Y = self.genX2.__getitem__(ix)
+        X1, Y = self._g1.__getitem__(ix)
+        X2, Y = self._g2.__getitem__(ix)
         return [X1, X2], Y
 
     def on_epoch_end(self):
-        self.g1._shuffle()
-        self.g2.shuffle()
+        if self._shuffle:
+            self._shuffle
+
+        self._g1.on_epoch_end()
+        self._g2.on_epoch_end()
+
+    def _shuffle_samples(self):
+        self._df = self._df.sample(frac=1).reset_index(drop=True)
+        self._g1._df = self._df
+        self._g2._df = self._df

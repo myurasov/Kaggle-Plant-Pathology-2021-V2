@@ -16,8 +16,8 @@ import pandas as pd
 from tensorflow import keras
 
 from src.config import c
-from src.generator import Generator
-from src.models import Model_ENB0, Model_ENB7, Model_ENB7_NS
+from src.generator import Generator, X2_Generator
+from src.models import Model_ENB0, Model_ENB7, Model_ENB7_NS, Model_ENB7_X2
 from src.utils import create_dir, fix_random_seed
 
 # endregion
@@ -52,7 +52,7 @@ parser.add_argument(
 parser.add_argument(
     "--batch",
     type=int,
-    default=4,
+    default=2,
     help="Batch size",
 )
 
@@ -86,8 +86,8 @@ parser.add_argument(
 parser.add_argument(
     "--model",
     type=str,
-    default="enb0",
-    choices=["enb0", "enb7", "enb7_ns"],
+    default="enb7_x2",
+    choices=["enb0", "enb7", "enb7_ns", "enb7_x2"],
     help="Model",
 )
 
@@ -128,6 +128,14 @@ parser.add_argument(
     help="LR reduction patience",
 )
 
+parser.add_argument(
+    "--zooms",
+    type=float,
+    default=[1, 2],
+    nargs="+",
+    help="Zoom levels for each input",
+)
+
 args = parser.parse_args()
 print(f"* Arguments:\n{pformat(vars(args))}")
 # endregion
@@ -136,6 +144,7 @@ print(f"* Arguments:\n{pformat(vars(args))}")
 
 loss = ""
 final_activation = ""
+n_image_inputs = min(2, len(args.zooms))
 
 fix_random_seed()
 
@@ -212,6 +221,8 @@ elif args.model == "enb7":
     model_buider = Model_ENB7(**model_options)
 elif args.model == "enb7_ns":
     model_buider = Model_ENB7_NS(**model_options)
+elif args.model == "enb7_x2":
+    model_buider = Model_ENB7_X2(**model_options)
 
 model_buider.create()
 
@@ -249,20 +260,48 @@ print(f"* Written train run metadata to {train_meta_file}")
 # endregion
 
 # region: create generators
+train_g, val_g = None, None
 
-train_g = Generator(
-    df=train_df,
-    batch_size=args.batch,
-    image_output_size=model_buider.input_shape,
-    augmentation_options=None,
-)
+if n_image_inputs == 1:
 
-val_g = Generator(
-    df=val_df,
-    batch_size=args.batch,
-    image_output_size=model_buider.input_shape,
-    augmentation_options=None,
-)
+    train_g = Generator(
+        df=train_df,
+        shuffle=True,
+        zoom=args.zooms[0],
+        batch_size=args.batch,
+        augmentation_options=None,
+        image_output_size=model_buider.input_shape,
+    )
+
+    val_g = Generator(
+        df=val_df,
+        shuffle=True,
+        zoom=args.zooms[0],
+        batch_size=args.batch,
+        augmentation_options=None,
+        image_output_size=model_buider.input_shape,
+    )
+
+elif n_image_inputs == 2:
+
+    train_g = X2_Generator(
+        df=train_df,
+        shuffle=True,
+        zooms=args.zooms,
+        batch_size=args.batch,
+        augmentation_options=None,
+        image_output_size=model_buider.input_shape,
+    )
+
+    val_g = X2_Generator(
+        df=val_df,
+        shuffle=True,
+        zooms=args.zooms,
+        batch_size=args.batch,
+        augmentation_options=None,
+        image_output_size=model_buider.input_shape,
+    )
+
 
 # endregion
 

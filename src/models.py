@@ -129,7 +129,7 @@ class Model_ENB7_X2(Model):
 
     def create(self):
 
-        base = keras.applications.EfficientNetB7(
+        self.base_model = keras.applications.EfficientNetB7(
             include_top=False,
             weights="imagenet",
             classes=self.n_classes,
@@ -137,13 +137,13 @@ class Model_ENB7_X2(Model):
 
         input_1 = keras.layers.Input(shape=self.input_shape)
         x1 = self.augmentation_stage(input_1)
-        x1 = base(x1)
+        x1 = self.base_model(x1)
         x1 = keras.layers.GlobalAveragePooling2D()(x1)
         x1 = keras.layers.BatchNormalization()(x1)
 
         input_2 = keras.layers.Input(shape=self.input_shape)
         x2 = self.augmentation_stage(input_2)
-        x2 = base(x2)
+        x2 = self.base_model(x2)
         x2 = keras.layers.GlobalAveragePooling2D()(x2)
         x2 = keras.layers.BatchNormalization()(x2)
 
