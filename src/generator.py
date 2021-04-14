@@ -2,6 +2,7 @@ import os
 from hashlib import md5
 
 import numpy as np
+import tensorflow as tf
 from PIL import Image
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import (
@@ -135,7 +136,16 @@ class Generator(keras.utils.Sequence):
 
         # x wasn't read from cache
         if x is None:
-            x = Image.open(src_file)
+
+            if src_file[-4:].lower() in [".jpg", "jpeg"]:
+                # read JPEG with TF
+                x = tf.io.read_file(src_file)
+                x = tf.image.decode_jpeg(x, channels=3)
+                x = x.numpy().astype(np.uint8)
+                x = Image.fromarray(x)
+            else:
+                # read other formats with PIL
+                x = Image.open(src_file)
 
             x = x.resize(
                 (

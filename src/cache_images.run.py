@@ -66,5 +66,6 @@ with Pool(cpu_count()) as pool:
                 range(df.shape[0]),
             ),
             total=df.shape[0],
+            smoothing=0
         )
     )
