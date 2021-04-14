@@ -6,6 +6,7 @@
 
 import argparse
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -17,7 +18,7 @@ from tensorflow import keras
 
 from src.config import c
 from src.generator import Generator, X2_Generator
-from src.models import Model_ENB0, Model_ENB7, Model_ENB7_NS, Model_ENB7_X2
+from src.models import Model_ENBX, Model_ENBX_NS, Model_ENBX_X2
 from src.utils import create_dir, fix_random_seed
 
 # endregion
@@ -86,8 +87,10 @@ parser.add_argument(
 parser.add_argument(
     "--model",
     type=str,
-    default="enb7_x2",
-    choices=["enb0", "enb7", "enb7_ns", "enb7_x2"],
+    default="enb0",
+    choices=[f"enb{x}" for x in range(8)]
+    + [f"enb{x}_ns" for x in range(8)]
+    + [f"enb{x}_x2" for x in range(8)],
     help="Model",
 )
 
@@ -131,7 +134,7 @@ parser.add_argument(
 parser.add_argument(
     "--zooms",
     type=float,
-    default=[1, 2],
+    default=[1],
     nargs="+",
     help="Zoom levels for each input",
 )
@@ -208,21 +211,20 @@ print(f"* Final activation: {final_activation}")
 
 # region: create model
 
-model_buider = None  # type: Model_ENB0
 model_options = {
     "n_classes": len(ds_meta["classes"]),
     "final_activation": final_activation,
     "augmentation": args.aug,
 }
 
-if args.model == "enb0":
-    model_buider = Model_ENB0(**model_options)
-elif args.model == "enb7":
-    model_buider = Model_ENB7(**model_options)
-elif args.model == "enb7_ns":
-    model_buider = Model_ENB7_NS(**model_options)
-elif args.model == "enb7_x2":
-    model_buider = Model_ENB7_X2(**model_options)
+model_en_variant, model_suffix = re.search("enb(\\d)(_ns|_x2)?", args.model).groups()
+
+if model_suffix is None:
+    model_buider = Model_ENBX(variant=int(model_en_variant), **model_options)
+elif model_suffix == "_ns":
+    model_buider = Model_ENBX_NS(variant=int(model_en_variant), **model_options)
+elif model_suffix == "_x2":
+    model_buider = Model_ENBX_X2(variant=int(model_en_variant), **model_options)
 
 model_buider.create()
 

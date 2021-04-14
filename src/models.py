@@ -2,14 +2,17 @@ from tensorflow import keras
 import efficientnet.tfkeras as efn
 
 
-class Model:
-    def __init__(self, n_classes, final_activation="softmax", augmentation=1):
+class Model_ENBX:
+    def __init__(self, variant, n_classes, final_activation="softmax", augmentation=1):
 
+        en_input_sizes = [224, 240, 260, 300, 380, 456, 528, 600]
+        self.input_shape = (en_input_sizes[variant], en_input_sizes[variant], 3)
+
+        self._variant = variant
         self.n_classes = n_classes
         self.augmentation = augmentation
         self.final_activation = final_activation
         self.base_model = None  # type: keras.Model
-        self.input_shape = None
 
     def freeze_base(self):
         self.base_model.trainable = False
@@ -41,7 +44,15 @@ class Model:
         return x
 
     def base_stage(self, input_tensor):
-        pass
+
+        self.base_model = getattr(keras.applications, f"EfficientNetB{self._variant}")(
+            input_tensor=input_tensor,
+            include_top=False,
+            weights="imagenet",
+            classes=self.n_classes,
+        )
+
+        return self.base_model.output
 
     def top_stage(self, input_tensor):
         x = input_tensor
@@ -67,48 +78,13 @@ class Model:
         return self.model
 
 
-class Model_ENB0(Model):
+class Model_ENBX_NS(Model_ENBX):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.input_shape = (224, 224, 3)
 
     def base_stage(self, input_tensor):
 
-        self.base_model = keras.applications.EfficientNetB0(
-            input_tensor=input_tensor,
-            include_top=False,
-            weights="imagenet",
-            classes=self.n_classes,
-        )
-
-        return self.base_model.output
-
-
-class Model_ENB7(Model):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.input_shape = (600, 600, 3)
-
-    def base_stage(self, input_tensor):
-
-        self.base_model = keras.applications.EfficientNetB7(
-            input_tensor=input_tensor,
-            include_top=False,
-            weights="imagenet",
-            classes=self.n_classes,
-        )
-
-        return self.base_model.output
-
-
-class Model_ENB7_NS(Model):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.input_shape = (600, 600, 3)
-
-    def base_stage(self, input_tensor):
-
-        self.base_model = efn.EfficientNetB7(
+        self.base_model = getattr(efn, f"EfficientNetB{self._variant}")(
             input_tensor=input_tensor,
             include_top=False,
             weights="noisy-student",
@@ -118,18 +94,17 @@ class Model_ENB7_NS(Model):
         return self.base_model.output
 
 
-class Model_ENB7_X2(Model):
+class Model_ENBX_X2(Model_ENBX):
     """
-    EfficientNetB7 with 2 inputs
+    EfficientNetBX with 2 inputs
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.input_shape = (600, 600, 3)
 
     def create(self):
 
-        self.base_model = keras.applications.EfficientNetB7(
+        self.base_model = getattr(keras.applications, f"EfficientNetB{self._variant}")(
             include_top=False,
             weights="imagenet",
             classes=self.n_classes,
