@@ -3,10 +3,20 @@ import efficientnet.tfkeras as efn
 
 
 class Model_ENBX:
-    def __init__(self, variant, n_classes, final_activation="softmax", augmentation=1):
+    def __init__(
+        self,
+        variant,
+        n_classes,
+        final_activation="softmax",
+        augmentation=1,
+        input_shape=None,
+    ):
 
-        en_input_sizes = [224, 240, 260, 300, 380, 456, 528, 600]
-        self.input_shape = (en_input_sizes[variant], en_input_sizes[variant], 3)
+        if input_shape is None:
+            en_input_sizes = [224, 240, 260, 300, 380, 456, 528, 600]
+            self.input_shape = (en_input_sizes[variant], en_input_sizes[variant], 3)
+        else:
+            self.input_shape = input_shape
 
         self._variant = variant
         self.n_classes = n_classes
@@ -89,6 +99,32 @@ class Model_ENBX_NS(Model_ENBX):
             include_top=False,
             weights="noisy-student",
             classes=self.n_classes,
+        )
+
+        return self.base_model.output
+
+
+class Model_ENBL2(Model_ENBX):
+    def __init__(self, **kwargs):
+        super().__init__(input_shape=(800, 800, 3), variant=None, **kwargs)
+
+    def base_stage(self, input_tensor):
+
+        # @see https://github.com/xhlulu/keras-noisy-student
+
+        weights_file = keras.utils.get_file(
+            "efficientnet-l2_noisy-student_notop.h5",
+            "https://github.com/xhlulu/keras-efficientnet-l2/releases/"
+            + "download/data/efficientnet-l2_noisy-student_notop.h5",
+            cache_subdir="models",
+        )
+
+        self.base_model = efn.EfficientNetL2(
+            input_tensor=input_tensor,
+            include_top=False,
+            classes=self.n_classes,
+            weights=weights_file,
+            # drop_connect_rate=0,
         )
 
         return self.base_model.output
