@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse
+import os
 from multiprocessing import Pool, cpu_count
 from pprint import pformat
 
@@ -42,6 +43,7 @@ args = parser.parse_args()
 print(f"* Arguments:\n{pformat(vars(args))}")
 # endregion
 
+os.chdir(c["WORK_DIR"])
 df = pd.read_csv(args.input_csv)
 
 g = Generator(
@@ -66,6 +68,6 @@ with Pool(cpu_count()) as pool:
                 range(df.shape[0]),
             ),
             total=df.shape[0],
-            smoothing=0
+            smoothing=0,
         )
     )

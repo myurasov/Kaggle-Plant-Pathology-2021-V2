@@ -158,6 +158,7 @@ def add_folds(df, n_folds) -> pd.DataFrame:
 
 
 fix_random_seed()
+os.chdir(c["WORK_DIR"])
 
 # read multiple csvs into single dataframe
 df = read_csvs(args.input_csvs)

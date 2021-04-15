@@ -73,8 +73,8 @@ def _calculate_image_hashes(image_filename):
     )
 
 
+os.chdir(c["WORK_DIR"])
 df = pd.read_csv(args.input_csv)
-
 print("* Calculating hashes...")
 
 # # calculate hashes

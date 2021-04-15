@@ -6,6 +6,7 @@
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
@@ -18,7 +19,7 @@ from tensorflow import keras
 
 from src.config import c
 from src.generator import Generator, X2_Generator
-from src.models import Model_ENBX, Model_ENBX_NS, Model_ENBX_X2, Model_ENBL2
+from src.models import Model_ENBL2, Model_ENBX, Model_ENBX_NS, Model_ENBX_X2
 from src.utils import create_dir, fix_random_seed
 
 # endregion
@@ -150,6 +151,7 @@ loss = ""
 final_activation = ""
 n_image_inputs = min(2, len(args.zooms))
 
+os.chdir(c["WORK_DIR"])
 fix_random_seed()
 
 # turn amp on
