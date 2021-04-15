@@ -1,5 +1,7 @@
-from tensorflow import keras
 import efficientnet.tfkeras as efn
+from tensorflow import keras
+
+from src.config import c
 
 
 class Model_ENBX:
@@ -69,7 +71,7 @@ class Model_ENBX:
 
         x = keras.layers.GlobalAveragePooling2D()(x)
         x = keras.layers.BatchNormalization()(x)
-        x = keras.layers.Dropout(0.2)(x)
+        x = keras.layers.Dropout(0.2, seed=c["SEED"])(x)
         x = keras.layers.Dense(
             self.n_classes,
             activation=self.final_activation,
@@ -159,7 +161,7 @@ class Model_ENBX_X2(Model_ENBX):
         x2 = keras.layers.BatchNormalization()(x2)
 
         x = keras.layers.Concatenate()([x1, x2])
-        x = keras.layers.Dropout(0.2)(x)
+        x = keras.layers.Dropout(0.2, seed=c["SEED"])(x)
         output_1 = keras.layers.Dense(
             self.n_classes,
             activation=self.final_activation,

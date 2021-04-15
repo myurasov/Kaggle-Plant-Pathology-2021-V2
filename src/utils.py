@@ -6,6 +6,7 @@ from collections import namedtuple
 
 import IPython
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 
 
@@ -26,8 +27,10 @@ def dict_to_struct(d):
 
 
 def fix_random_seed(seed=777):
+    os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)
     np.random.seed(seed)
+    tf.set_random_seed(seed)
 
 
 def list_indexes(list, cols=None):

@@ -152,7 +152,7 @@ final_activation = ""
 n_image_inputs = min(2, len(args.zooms))
 
 os.chdir(c["WORK_DIR"])
-fix_random_seed()
+fix_random_seed(c["SEED"])
 
 # turn amp on
 if args.amp:

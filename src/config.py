@@ -1,5 +1,7 @@
 c = {}
 
+c['SEED'] = 777
+
 c["DATA_DIR"] = "/app/_data"
 
 # where to search for csvs

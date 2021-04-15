@@ -157,7 +157,7 @@ def add_folds(df, n_folds) -> pd.DataFrame:
     return df
 
 
-fix_random_seed()
+fix_random_seed(c["SEED"])
 os.chdir(c["WORK_DIR"])
 
 # read multiple csvs into single dataframe
@@ -170,7 +170,7 @@ df = add_folds(df, args.folds)
 df, classes = add_Y(df, args.labels_mode)
 
 # create output directory
-if '/' in args.out_csv:
+if "/" in args.out_csv:
     os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
 
 # save csv
