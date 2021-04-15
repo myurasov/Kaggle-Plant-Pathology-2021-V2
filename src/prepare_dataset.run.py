@@ -170,7 +170,8 @@ df = add_folds(df, args.folds)
 df, classes = add_Y(df, args.labels_mode)
 
 # create output directory
-os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
+if '/' in args.out_csv:
+    os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
 
 # save csv
 df.to_csv(args.out_csv, index=False)

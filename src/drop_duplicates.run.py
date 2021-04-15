@@ -127,7 +127,9 @@ for ix, row in tqdm(df.iterrows(), total=df.shape[0]):
 print(f"* Dropping {len(ixs_to_drop)} rows...")
 df = df.drop(list(ixs_to_drop))
 
-os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
+if "/" in args.out_csv:
+    os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
+
 df.to_csv(args.out_csv, index=False)
 
 print(
