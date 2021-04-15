@@ -40,17 +40,29 @@ class Model_ENBX:
         # augmentation level
         if self.augmentation >= 1:
             x = keras.layers.experimental.preprocessing.RandomFlip(
-                "horizontal_and_vertical"
+                "horizontal_and_vertical",
+                seed=c["SEED"],
             )(x)
             x = keras.layers.experimental.preprocessing.RandomRotation(
-                0.5, fill_mode="reflect"
+                0.5,
+                fill_mode="reflect",
+                seed=c["SEED"],
             )(x)
             x = keras.layers.experimental.preprocessing.RandomZoom(
-                height_factor=(0.5, -0.5), width_factor=(0.5, -0.5), fill_mode="reflect"
+                height_factor=(0.5, -0.5),
+                width_factor=(0.5, -0.5),
+                fill_mode="reflect",
+                seed=c["SEED"],
             )(x)
-            x = keras.layers.experimental.preprocessing.RandomContrast(factor=0.33)(x)
+            x = keras.layers.experimental.preprocessing.RandomContrast(
+                factor=0.33,
+                seed=c["SEED"],
+            )(x)
             x = keras.layers.experimental.preprocessing.RandomTranslation(
-                height_factor=0.5, width_factor=0.5, fill_mode="reflect"
+                height_factor=0.5,
+                width_factor=0.5,
+                fill_mode="reflect",
+                seed=c["SEED"],
             )(x)
 
         return x
