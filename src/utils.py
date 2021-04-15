@@ -30,7 +30,7 @@ def fix_random_seed(seed=777):
     os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)
     np.random.seed(seed)
-    tf.set_random_seed(seed)
+    tf.random.set_seed(seed)
 
 
 def list_indexes(list, cols=None):
