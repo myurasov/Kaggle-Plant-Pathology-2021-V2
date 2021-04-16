@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--pp20_test_csv",
     type=str,
-    # default="/app/res/test_20_labeled.csv",
+    default=None,
     help="Merge PP20 labeled test data from CSV at this location",
 )
 
@@ -41,6 +41,9 @@ parser.add_argument(
 
 args = parser.parse_args()
 print(f"* Arguments:\n{pformat(vars(args))}")
+
+# args.pp20_test_csv = "/app/res/test_20_labeled.csv"
+# args.pp20 = True
 
 # endregion
 
@@ -140,7 +143,7 @@ def _add_pp_2020():
 
             # append image labels
             label = []
-            for i, has_class in enumerate(list(row[1:])):
+            for i, has_class in enumerate(list(row)):
                 if has_class:
                     label.append(pp20_classes[i])
             new_labels.append(" ".join(label))
