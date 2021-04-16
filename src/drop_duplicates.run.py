@@ -64,13 +64,13 @@ def _calculate_image_hashes(image_filename):
             break
 
     img = Image.open(image_path).resize((256, 256), Image.BICUBIC)
-    return (
-        imagehash.average_hash(img),
-        # imagehash.whash(img),
-        # imagehash.whash(img, mode="db4"),
-        # imagehash.phash(img),
-        # imagehash.dhash(img),
-    )
+    h = imagehash.average_hash(img)
+
+    # speed up direct comparision
+    if args.threshold == 0:
+        h = str(h)
+
+    return h
 
 
 os.chdir(c["WORK_DIR"])
