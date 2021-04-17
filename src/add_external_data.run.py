@@ -74,9 +74,8 @@ def _copy_file_to_external_images(path):
 
     if not os.path.isfile(new_file_path):
         shutil.copyfile(path, new_file_path)
-        return new_file_name  # copied
 
-    return None  # not copied
+    return new_file_name
 
 
 def _add_pp_2020_test_csv():
