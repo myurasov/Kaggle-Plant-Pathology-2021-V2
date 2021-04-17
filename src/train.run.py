@@ -15,6 +15,7 @@ from pprint import pformat
 
 import numpy as np
 import pandas as pd
+from lib.keras_tb_logger import TensorBoard_Logger, lr_logger, gpu_temp_logger
 from tensorflow import keras
 
 from src.config import c
@@ -334,7 +335,15 @@ callbacks.append(
     )
 )
 
-callbacks.append(keras.callbacks.TensorBoard(log_dir=td_dir))
+callbacks.append(
+    TensorBoard_Logger(
+        log_dir=td_dir,
+        loggers=[
+            lr_logger,
+            gpu_temp_logger,
+        ],
+    )
+)
 
 callbacks.append(
     keras.callbacks.ReduceLROnPlateau(
