@@ -53,7 +53,7 @@ PP20_TRAIN_PLUS_TEST_CSV = f"{PP20_DIR}/_train_plus_test.csv"
 # create extra data dir
 extra_data_dir = f"{c['WORK_DIR']}/extra_data"
 images_out_dir = f"{extra_data_dir}/images"
-create_dir(extra_data_dir, remove=True)
+create_dir(extra_data_dir, remove=False)
 create_dir(images_out_dir, remove=False)
 print(f"* Extra data dir: {extra_data_dir}")
 
