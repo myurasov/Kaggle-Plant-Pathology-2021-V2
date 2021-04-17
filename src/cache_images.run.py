@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "--input_csv",
+    "--in_csv",
     type=str,
     default=c["WORK_DIR"] + "/work.csv",
     help="Input CSV file",
@@ -44,7 +44,7 @@ print(f"* Arguments:\n{pformat(vars(args))}")
 # endregion
 
 os.chdir(c["WORK_DIR"])
-df = pd.read_csv(args.input_csv)
+df = pd.read_csv(args.in_csv)
 
 g = Generator(
     df=df,
