@@ -30,7 +30,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--input_csv",
+    "--in_csv",
     type=str,
     default=c["WORK_DIR"] + "/work.csv",
     help="Input CSV file",
@@ -68,7 +68,7 @@ def _calculate_image_hashes(image_filename):
 
 
 os.chdir(c["WORK_DIR"])
-df = pd.read_csv(args.input_csv)
+df = pd.read_csv(args.in_csv)
 print("* Calculating hashes...")
 
 # # calculate hashes

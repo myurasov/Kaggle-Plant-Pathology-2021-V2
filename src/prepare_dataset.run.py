@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "--input_csvs",
+    "--in_csvs",
     type=str,
     default=c["SRC_CSVS"],
     nargs="+",
@@ -161,7 +161,7 @@ fix_random_seed(c["SEED"])
 os.chdir(c["WORK_DIR"])
 
 # read multiple csvs into single dataframe
-df = read_csvs(args.input_csvs)
+df = read_csvs(args.in_csvs)
 
 # add folds
 df = add_folds(df, args.folds)
