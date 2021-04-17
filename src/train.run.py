@@ -45,7 +45,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--input_csv",
+    "--in_csv",
     type=str,
     default=c["WORK_DIR"] + "/work.csv",
     help="Input CSV file",
@@ -160,13 +160,13 @@ if args.amp:
     keras.mixed_precision.set_global_policy("mixed_float16")
 
 # load dataset metadata
-ds_meta = json.loads(Path(args.input_csv + ".json").read_text())
+ds_meta = json.loads(Path(args.in_csv + ".json").read_text())
 
 # endregion
 
 # region: create train/val dataframes
 
-df = pd.read_csv(args.input_csv)
+df = pd.read_csv(args.in_csv)
 
 if args.val_fold < 1:
     # split into sets based on fraction for val
