@@ -23,5 +23,14 @@
     "**/node_modules/*/**": true,
     "**/__*": true,
     "**/_data/**/*cache*/**": true,
-  }
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/.ipynb_checkpoints": true
+  },
+  "explorerExclude.backup": null
 }
