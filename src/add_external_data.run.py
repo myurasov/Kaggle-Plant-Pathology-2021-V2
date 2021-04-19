@@ -175,7 +175,7 @@ def _add_aux_data(aux_dir):
     label_dirs = glob(f"{aux_dir}/*")
 
     for label_dir in label_dirs:
-        label = re.findall("([a-z_]+)(\\.[\\w_-]+)?$", label_dir, re.I)[0][0]
+        label = re.findall("([a-z_\\s]+)(\\.[\\w_-]+)?$", label_dir, re.I)[0][0]
         print(f'* Found aux data in "{label_dir}" with label "{label}"')
 
         for file in tqdm(glob(f"{label_dir}/*")):
