@@ -9,9 +9,9 @@ def lr_logger(self, logs: dict):
 
 
 def gpu_temp_logger(self, logs: dict):
-    stream = os.popen("nvidia-smi stats -i 0 -c 1 | grep temp")
+    stream = os.popen("nvidia-smi -i 0 --query-gpu='temperature.gpu' --format=csv,noheader")
     output = stream.read()
-    gpu_temp = int(output[-4:])
+    gpu_temp = int(output)
     logs.update({"gpu_temp": gpu_temp})
 
 
