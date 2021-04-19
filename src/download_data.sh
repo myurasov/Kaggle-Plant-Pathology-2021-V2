@@ -13,6 +13,10 @@ then
     kaggle competitions download -c plant-pathology-2021-fgvc8
     unzip plant-pathology-2021-fgvc8.zip
     rm plant-pathology-2021-fgvc8.zip
+
+    # remove shite samples
+    cp train.csv train.csv.orig
+    cat train.csv | egrep -v "\b(ead085dfac287263|95276ccd226ad933|da8770e819d2696d)\b" > train.csv
 fi
 
 # 2020 data
