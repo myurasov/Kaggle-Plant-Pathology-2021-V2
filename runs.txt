@@ -1,0 +1,83 @@
+# A0
+
+# only pp_20 extra data, no dups
+src/train.run.py --run A0 --lr 0.0005 --lr_patience 2 --val_fold 0.1 --model enb7 --batch 8 --augmentation 1 --frozen_base 1 3 --amp 1
+
+# A
+
+src/download_data.sh
+src/add_external_data.run.py --pp_2020 --aux_dirs gi_my_1
+src/prepare_dataset.run.py --folds 10 --out_csv=/app/_data/work/work_all.csv
+src/drop_duplicates.run.py --input_csv /app/_data/work/work_all.csv --out_csv /app/_data/work/work_nodups.csv
+src/prepare_dataset.run.py --input_csvs /app/_data/work/work_nodups.csv --out_csv /app/_data/work/work.csv --folds 10
+src/cache_images.run.py --input_csv /app/_data/work/work_all.csv --size 600 600
+src/train.run.py --run A_nodups --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+
+# A_baseline @ 0.869 #
+src/train.run.py --run A_all --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1 --input_csv /app/_data/work/work_all.csv
+
+# A_baseline_noaug @ 0.863
+src/train.run.py --run A_baseline_noaug --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 0 --frozen_base 1 3 --amp 1 --input_csv /app/_data/work/work_all.csv
+
+# B
+
+src/add_external_data.run.py --pp_2020 --aux_dirs gi_my_1
+src/prepare_dataset.run.py --folds 10 --out_csv=/app/_data/work/work_all.csv --zoom 1
+src/prepare_dataset.run.py --folds 10 --out_csv=/app/_data/work/work_all.csv --zoom 2
+
+src/train.run.py --input_csv /app/_data/work/work_all.csv --run B --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7_x2 --batch 8 --aug 1 --frozen_base 1 3 --amp 1 --zooms 1 2
+src/train.run.py --input_csv /app/_data/work/work_all.csv --run B_noaug --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7_x2 --batch 8 --aug 0 --frozen_base 1 3 --amp 1 --zooms 1 2
+src/train.run.py --input_csv /app/_data/work/work_all.csv --run B_noaug_pluslr --lr 0.0010 --lr_patience 2 --val_fold 1 --model enb7_x2 --batch 8 --aug 0 --frozen_base 1 3 --amp 1 --zooms 1 2
+src/train.run.py --input_csv /app/_data/work/work_all.csv --run B_pluslr --lr 0.0010 --lr_patience 2 --val_fold 1 --model enb7_x2 --batch 8 --aug 1 --frozen_base 1 3 --amp 1 --zooms 1 2
+
+# C
+
+rm -rf _data/work/extra_data/
+rm -rf _data/work/images_cache/
+
+# C_base
+src/add_external_data.run.py --aux_dirs gi_my_1 --pp20
+src/prepare_dataset.run.py --folds 10 --out_csv C_base.csv
+
+src/add_external_data.run.py --pp20_test_csv /app/res/test_20_labeled.csv --pp20  --aux_dirs gi_my_1
+src/prepare_dataset.run.py --folds 10 --out_csv C_test20labeled.csv
+src/cache_images.run.py --input_csv C_test20labeled.csv --size 600 600 --zoom 1
+
+src/add_external_data.run.py --pp20_test_csv /app/res/test_20_labeled_without_complex.csv --pp20  --aux_dirs gi_my_1
+src/prepare_dataset.run.py --folds 10 --out_csv C_test20labeledwithoutcomplex.csv
+
+src/add_external_data.run.py --pp20_test_csv /app/res/test_20_only_one_label.csv --pp20  --aux_dirs gi_my_1
+src/prepare_dataset.run.py --folds 10 --out_csv C_test20onlyonelabel.csv
+
+src/train.run.py --run C_base --in_csv C_base.csv --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+
+src/train.run.py --run C_test20labeled --in_csv C_test20labeled.csv --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+
+src/train.run.py --run C_test20labeledwithoutcomplex --in_csv C_test20labeledwithoutcomplex.csv --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+
+src/train.run.py --run C_test20onlyonelabel --in_csv C_test20onlyonelabel.csv --lr 0.0005 --lr_patience 2 --val_fold 1 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+
+# D
+
+rm -rf _data/work/extra_data/
+rm -rf _data/work/images_cache/
+
+src/add_external_data.run.py --pp20_test_csv /app/res/test_20_labeled.csv --pp20 --aux_dirs natasha_1
+src/prepare_dataset.run.py --folds 10 --out_csv D.csv
+src/cache_images.run.py --input_csv D.csv --size 600 600 --zoom 1
+
+src/train.run.py --run D --val_fold 1 --in_csv D.csv --lr 0.0005 --lr_patience 2 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+src/train.run.py --run D --val_fold 2 --in_csv D.csv --lr 0.0005 --lr_patience 2 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+src/train.run.py --run D --val_fold 3 --in_csv D.csv --lr 0.0005 --lr_patience 2 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+src/train.run.py --run D --val_fold 4 --in_csv D.csv --lr 0.0005 --lr_patience 2 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
+
+# E
+
+rm -rf _data/work/extra_data/
+rm -rf _data/work/images_cache/
+
+src/add_external_data.run.py --pp20_test_csv /app/res/test_20_labeled.csv --pp20 --aux_dirs natasha_1
+src/prepare_dataset.run.py --folds 10 
+src/cache_images.run.py --size 600 600 --zoom 1
+
+src/train.run.py --run E --val_fold 1 --lr 0.00025 --lr_patience 3 --lr_factor 0.2 --model enb7 --batch 8 --aug 1 --frozen_base 1 3 --amp 1
