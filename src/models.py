@@ -81,11 +81,12 @@ class Model_ENBX:
     def top_stage(self, input_tensor):
         x = input_tensor
 
-        x = keras.layers.GlobalAveragePooling2D()(x)
-        x = keras.layers.BatchNormalization()(x)
-        x = keras.layers.Dropout(0.2, seed=c["SEED"])(x)
+        x = keras.layers.GlobalAveragePooling2D(name="head_gap")(x)
+        x = keras.layers.BatchNormalization(name="head_bn")(x)
+        x = keras.layers.Dropout(0.2, name="head_dropout", seed=c["SEED"])(x)
         x = keras.layers.Dense(
             self.n_classes,
+            name="head_dense",
             activation=self.final_activation,
         )(x)
 
@@ -163,19 +164,24 @@ class Model_ENBX_X2(Model_ENBX):
         input_1 = keras.layers.Input(shape=self.input_shape)
         x1 = self.augmentation_stage(input_1)
         x1 = self.base_model(x1)
-        x1 = keras.layers.GlobalAveragePooling2D()(x1)
-        x1 = keras.layers.BatchNormalization()(x1)
+        x1 = keras.layers.GlobalAveragePooling2D(
+            name="head_gap_1",
+        )(x1)
+        x1 = keras.layers.BatchNormalization(name="head_bn_1")(x1)
 
         input_2 = keras.layers.Input(shape=self.input_shape)
         x2 = self.augmentation_stage(input_2)
         x2 = self.base_model(x2)
-        x2 = keras.layers.GlobalAveragePooling2D()(x2)
-        x2 = keras.layers.BatchNormalization()(x2)
+        x2 = keras.layers.GlobalAveragePooling2D(name="head_gap_2")(x2)
+        x2 = keras.layers.BatchNormalization(
+            name="head_bn_2",
+        )(x2)
 
         x = keras.layers.Concatenate()([x1, x2])
-        x = keras.layers.Dropout(0.2, seed=c["SEED"])(x)
+        x = keras.layers.Dropout(0.2, name="head_dropout", seed=c["SEED"])(x)
         output_1 = keras.layers.Dense(
             self.n_classes,
+            name="head_dense",
             activation=self.final_activation,
         )(x)
 

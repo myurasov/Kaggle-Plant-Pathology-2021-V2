@@ -338,6 +338,7 @@ callbacks.append(
 callbacks.append(
     TensorBoard_Logger(
         log_dir=td_dir,
+        histogram_freq=0,
         loggers=[
             lr_logger,
             gpu_temp_logger,
